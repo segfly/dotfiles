@@ -4,12 +4,40 @@ set -o errexit
 set -o nounset
 
 OMZSH_PLUGINS="https://github.com/agkozak/zsh-z https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/marlonrichert/zsh-autocomplete"
+PACKAGES="tmux"
 
 echo "Dotfiles installation started..."
 
+# Helper method to install packages on alpine or debian based systems.
+if command -v apt-get >/dev/null 2>&1; then
+    echo "apt-get package manager found."
+    install_pkgs() {
+        if ! dpkg -s "$@" >/dev/null 2>&1; then
+            if [ "$(find /var/lib/apt/lists/* | wc -l)" = "0" ]; then
+                sudo apt-get update -y
+            fi
+            sudo apt-get -y install --no-install-recommends "$@"
+        fi
+    }
+elif command -v apk >/dev/null 2>&1; then
+    echo "apk package manager found."
+    install_pkgs() {
+        if ! apk info "$@" >/dev/null 2>&1; then
+            sudo apk update
+            sudo apk add "$@"
+        fi
+    }
+else
+    echo "Package manager not found. Skipping package installation."
+    install_pkgs() {}
+fi
+
+# Install only if not running in a container.
 if grep -qE "init|systemd" /proc/1/sched; then
     echo "Not running in a container, skipping automated installation."
 else
+    # Install packages
+    install_pkgs "$PACKAGES"
 
     if ! command -v zsh >/dev/null 2>&1; then
         echo "Zsh is not available. Skipping zsh plugins installation."
