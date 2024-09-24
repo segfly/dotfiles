@@ -118,3 +118,17 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 
 # Set colors for LS_COLORS.
 # eval `dircolors ~/.dircolors`
+
+# If forward-word does not move the cursor, run complete-word instead.
+function custom-completion() {
+  local CURSOR_POS=$CURSOR
+  zle forward-word
+
+  if [[ $CURSOR -eq $CURSOR_POS ]]; then
+    zle complete-word
+  fi
+}
+
+# Bind custom-completion to Tab.
+zle -N custom-completion
+bindkey '^I' custom-completion
