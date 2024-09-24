@@ -122,7 +122,7 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 # If forward-word does not move the cursor, run complete-word instead.
 function custom-completion() {
   local CURSOR_POS=$CURSOR
-  zle forward-word
+  zle forward-char
 
   if [[ $CURSOR -eq $CURSOR_POS ]]; then
     zle complete-word
