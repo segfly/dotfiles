@@ -1,34 +1,55 @@
-#!/bin/bash
+#!/bin/sh
+#set -o xtrace
+set -o errexit
+set -o nounset
 
+OMZSH_PLUGINS="https://github.com/agkozak/zsh-z https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/marlonrichert/zsh-autocomplete"
 
-create_symlinks() {
-    # Get the directory in which this script lives.
-    script_dir=$(dirname "$(readlink -f "$0")")
+echo "Dotfiles installation started..."
 
-    # Get a list of all files in this directory that start with a dot.
-    files=$(find -maxdepth 1 -type f -name ".*")
+if grep -qE "init|systemd" /proc/1/sched; then
+    echo "Not running in a container, skipping automated installation."
+else
 
-    # Create a symbolic link to each file in the home directory.
-    for file in $files; do
-        name=$(basename $file)
-        echo "Creating symlink to $name in home directory."
-        rm -rf ~/$name
-        ln -s $script_dir/$name ~/$name
-    done
-}
+    if ! command -v zsh >/dev/null 2>&1; then
+        echo "Zsh is not available. Skipping zsh plugins installation."
+    else
 
-create_symlinks
+        if ! [ -d "$HOME/.oh-my-zsh" ]; then
+            echo "Installing oh-my-zsh"
+            sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"        
+        fi
 
-echo "Initializing conda for zsh."
-conda init zsh
+        OMZSH_PLUGINS_LOCATION="$HOME/.oh-my-zsh/custom/plugins"
+        mkdir -p "$OMZSH_PLUGINS_LOCATION"
 
-echo "Installing fonts."
-FONT_DIR="$HOME/.fonts"
-git clone https://github.com/powerline/fonts.git $FONT_DIR --depth=1
-cd $FONT_DIR
-./install.sh
+        for plugin in $OMZSH_PLUGINS; do
+            plugin_name=$(basename $plugin)
+            if ! [ -d "$OMZSH_PLUGINS_LOCATION/$plugin_name" ]; then
+                echo "Installing plugin: $plugin_name"        
+                git clone --depth 1 $plugin "$OMZSH_PLUGINS_LOCATION/$plugin_name"
+            else
+                echo "Skipping installation of existing plugin: $plugin_name"        
+            fi
+        done
 
-echo "Setting up the Spaceship theme."
-ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
-git clone https://github.com/spaceship-prompt/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt" --depth=1
-ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
+        # Install powerlevel10k theme separately.
+        if ! [ -d "$HOME/powerlevel10k" ]; then
+            echo "Installing theme: powerlevel10k"        
+            git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$HOME/powerlevel10k"
+        else
+            echo "Skipping installation of existing theme: powerlevel10k"
+        fi
+
+        if ! [ -d "$HOME/.tmux/plugins/tpm" ]; then
+            echo "Installing tmux plugin manager"
+            git clone --depth=1 https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+        else
+            echo "Skipping installation of existing tmux plugin manager"
+        fi
+
+        if [ -d "$HOME/.tmux/plugins/tpm" ]; then
+            ~/.tmux/plugins/tpm/bin/install_plugins
+        fi
+    fi
+fi
