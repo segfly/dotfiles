@@ -14,6 +14,8 @@ else
     if ! command -v zsh >/dev/null 2>&1; then
         echo "Zsh is not available. Skipping zsh plugins installation."
     else
+        # Copy dotfiles to home directory.
+        find zsh -type f -exec cp -r {} $HOME/ \;
 
         if ! [ -d "$HOME/.oh-my-zsh" ]; then
             echo "Installing oh-my-zsh"
@@ -40,6 +42,13 @@ else
         else
             echo "Skipping installation of existing theme: powerlevel10k"
         fi
+    fi # End of zsh check
+
+    if ! command -v tmux >/dev/null 2>&1; then
+        echo "Tmux not found, skipping configuration."
+    else
+        # Copy dotfiles to home directory.
+        find tmux -type f -exec cp -r {} $HOME/ \;
 
         if ! [ -d "$HOME/.tmux/plugins/tpm" ]; then
             echo "Installing tmux plugin manager"
@@ -51,5 +60,6 @@ else
         if [ -d "$HOME/.tmux/plugins/tpm" ]; then
             ~/.tmux/plugins/tpm/bin/install_plugins
         fi
-    fi
-fi
+    fi # End of tmux check
+
+fi # End of container check
