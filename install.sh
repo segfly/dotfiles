@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 
 OMZSH_PLUGINS="https://github.com/agkozak/zsh-z https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/marlonrichert/zsh-autocomplete"
-PACKAGES="tmux vim-gui-common"
+PACKAGES="tmux vi vim-gui-common"
 
 echo "Dotfiles installation started..."
 
@@ -32,7 +32,7 @@ else
     install_pkgs() {}
 fi
 
-# Install only if not running in a container.
+# Install only if running in a container.
 if grep -qE "init|systemd" /proc/1/sched; then
     echo "Not running in a container, skipping automated installation."
 else
