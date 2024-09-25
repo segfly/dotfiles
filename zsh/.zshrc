@@ -120,34 +120,22 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 # eval `dircolors ~/.dircolors`
 
 # Clear autosuggestions on widget execution
-# ZSH_AUTOSUGGEST_CLEAR_WIDGETS+="menu-select menu-complete reverse-menu-complete"
+ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste up-line-or-search down-line-or-search expand-or-complete accept-line push-line-or-edit)
 
-# Change zsh-autocomplete behavior to (shift)tab through menu
-bindkey              '^I' menu-select
+# Find key sequences with:
+# sudo apt install kbd
+# showkey -a
+
+# Change zsh-autocomplete behavior to (shift+)tab through menu
+bindkey '^I' menu-select
 bindkey "$terminfo[kcbt]" menu-select
-bindkey -M menuselect              '^I'         menu-complete
+bindkey -M menuselect '^I' menu-complete
 bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
 
-# Change zsh-autocomplete behavior to execute on enter:
-# bindkey -M menuselect '^M' .accept-line
+# ctrl + space to accept the current suggestion.
+bindkey '^ ' autosuggest-accept
 
-# # If forward-word does not move the cursor, run complete-word instead.
-# function custom-completion() {
-#   local CURSOR_POS=$CURSOR
-#   # zle forward-char
-
-#   if [[ $CURSOR -eq $CURSOR_POS ]]; then
-#     zle menu-select
-#   fi
-# }
-
-# # Function to bind custom-completion after shell initialization
-# # This is needed because a race condition with forward-char not yet ready
-# function bind_custom_completion() {
-#   zle -N custom-completion
-#   bindkey '^I' custom-completion
-#   add-zsh-hook -d precmd bind_custom_completion
-# }
-
-# # Use precmd hook to delay binding
-# add-zsh-hook precmd bind_custom_completion
+# Change zsh-autocomplete behavior to execute on alt+enter:
+# (ctrl+enter is not recognized by the terminal)
+bindkey -M menuselect '^[^M' .accept-line
+bindkey '^[^M' autosuggest-execute

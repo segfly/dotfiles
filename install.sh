@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 
 OMZSH_PLUGINS="https://github.com/agkozak/zsh-z https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/marlonrichert/zsh-autocomplete"
-PACKAGES="tmux"
+PACKAGES="tmux vim-gui-common"
 
 echo "Dotfiles installation started..."
 
@@ -16,7 +16,7 @@ if command -v apt-get >/dev/null 2>&1; then
             if [ "$(find /var/lib/apt/lists/* | wc -l)" = "0" ]; then
                 sudo apt-get update -y
             fi
-            sudo apt-get -y install --no-install-recommends "$@"
+            sudo apt-get -y install --no-install-recommends $@
         fi
     }
 elif command -v apk >/dev/null 2>&1; then
@@ -24,7 +24,7 @@ elif command -v apk >/dev/null 2>&1; then
     install_pkgs() {
         if ! apk info "$@" >/dev/null 2>&1; then
             sudo apk update
-            sudo apk add "$@"
+            sudo apk add $@
         fi
     }
 else
@@ -36,9 +36,6 @@ fi
 if grep -qE "init|systemd" /proc/1/sched; then
     echo "Not running in a container, skipping automated installation."
 else
-    # Install packages
-    install_pkgs "$PACKAGES"
-
     if ! command -v zsh >/dev/null 2>&1; then
         echo "Zsh is not available. Skipping zsh plugins installation."
     else
@@ -72,8 +69,11 @@ else
         fi
     fi # End of zsh check
 
+    # Install packages
+    install_pkgs "$PACKAGES"
+
     if ! command -v tmux >/dev/null 2>&1; then
-        echo "Tmux not found, skipping configuration."
+        echo "tmux not found, skipping configuration."
     else
         # Copy dotfiles to home directory.
         find tmux -type f -exec cp -r {} $HOME/ \;
@@ -89,5 +89,12 @@ else
             ~/.tmux/plugins/tpm/bin/install_plugins
         fi
     fi # End of tmux check
+
+    if ! command -v vi >/dev/null 2>&1; then
+        echo "vim not found, skipping configuration."
+    else
+        # Copy dotfiles to home directory.
+        find vim -type f -exec cp -r {} $HOME/ \;
+    fi # End of vim check    
 
 fi # End of container check
