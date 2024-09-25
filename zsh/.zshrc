@@ -119,16 +119,35 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 # Set colors for LS_COLORS.
 # eval `dircolors ~/.dircolors`
 
-# If forward-word does not move the cursor, run complete-word instead.
-function custom-completion() {
-  local CURSOR_POS=$CURSOR
-  zle forward-char
+# Clear autosuggestions on widget execution
+# ZSH_AUTOSUGGEST_CLEAR_WIDGETS+="menu-select menu-complete reverse-menu-complete"
 
-  if [[ $CURSOR -eq $CURSOR_POS ]]; then
-    zle complete-word
-  fi
-}
+# Change zsh-autocomplete behavior to (shift)tab through menu
+bindkey              '^I' menu-select
+bindkey "$terminfo[kcbt]" menu-select
+bindkey -M menuselect              '^I'         menu-complete
+bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
 
-# Bind custom-completion to Tab.
-zle -N custom-completion
-bindkey '^I' custom-completion
+# Change zsh-autocomplete behavior to execute on enter:
+# bindkey -M menuselect '^M' .accept-line
+
+# # If forward-word does not move the cursor, run complete-word instead.
+# function custom-completion() {
+#   local CURSOR_POS=$CURSOR
+#   # zle forward-char
+
+#   if [[ $CURSOR -eq $CURSOR_POS ]]; then
+#     zle menu-select
+#   fi
+# }
+
+# # Function to bind custom-completion after shell initialization
+# # This is needed because a race condition with forward-char not yet ready
+# function bind_custom_completion() {
+#   zle -N custom-completion
+#   bindkey '^I' custom-completion
+#   add-zsh-hook -d precmd bind_custom_completion
+# }
+
+# # Use precmd hook to delay binding
+# add-zsh-hook precmd bind_custom_completion
