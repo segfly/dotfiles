@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 
 OMZSH_PLUGINS="https://github.com/agkozak/zsh-z https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/marlonrichert/zsh-autocomplete"
-PACKAGES="tmux vi vim-gui-common"
+PACKAGES="tmux vim vim-gui-common"
 
 echo "Dotfiles installation started..."
 
