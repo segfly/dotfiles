@@ -126,8 +126,19 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste up-line-or-search down-line-or-s
 # sudo apt install kbd
 # showkey -a
 
+# Workaround for ZSH_AUTOSUGGEST_CLEAR_WIDGETS not working with menu-select
+function clear_and_select() {
+  zle autosuggest-clear
+  zle menu-select
+}
+zle -N clear_and_select
+
+# Clear on escape
+bindkey '^[' autosuggest-clear
+
 # Change zsh-autocomplete behavior to (shift+)tab through menu
-bindkey '^I' menu-select
+bindkey '^I' clear_and_select
+# bindkey '^I' menu-select
 bindkey "$terminfo[kcbt]" menu-select
 bindkey -M menuselect '^I' menu-complete
 bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
@@ -139,3 +150,11 @@ bindkey '^ ' autosuggest-accept
 # (ctrl+enter is not recognized by the terminal)
 bindkey -M menuselect '^[^M' .accept-line
 bindkey '^[^M' autosuggest-execute
+
+# Effectively supress autocomplete menu unless tabbed
+zstyle ':autocomplete:*' min-input 3000
+zstyle ':autocomplete:*history*:*' min-input 0
+
+# Enable manual regind for performance
+ZSH_AUTOSUGGEST_MANUAL_REBIND=True
+_zsh_autosuggest_bind_widgets
