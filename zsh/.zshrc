@@ -72,6 +72,10 @@ ZSH_THEME="devcontainers"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
+# Prevent autocomplete from showing unless activated with tab
+# https://github.com/marlonrichert/zsh-autocomplete/discussions/383
+zstyle ':autocomplete:async' enabled no
+
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
@@ -152,9 +156,9 @@ bindkey -M menuselect '^[^M' .accept-line
 bindkey '^[^M' autosuggest-execute
 
 # Effectively supress autocomplete menu unless tabbed
-zstyle ':autocomplete:*' min-input 3000
-zstyle ':autocomplete:*history*:*' min-input 0
+# (Doesn't work for cmd completions)
+# zstyle ':autocomplete:*' min-input 3000
+# zstyle ':autocomplete:*history*:*' min-input 0
 
-# Enable manual regind for performance
-ZSH_AUTOSUGGEST_MANUAL_REBIND=True
-_zsh_autosuggest_bind_widgets
+# Enable dotfiles in completions and globs
+setopt globdots
