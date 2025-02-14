@@ -68,6 +68,10 @@ ZSH_THEME="devcontainers"
 # or set a custom format using the strftime function format specifications,
 # see 'man strftime' for details.
 # HIST_STAMPS="mm/dd/yyyy"
+HIST_IGNORE_DUPS=true
+HIST_NO_FUNCTIONS=true
+
+
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
@@ -125,6 +129,7 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 
 # Clear autosuggestions on widget execution
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste up-line-or-search down-line-or-search expand-or-complete accept-line push-line-or-edit)
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Find key sequences with:
 # sudo apt install kbd
@@ -142,13 +147,19 @@ bindkey '^[' autosuggest-clear
 
 # Change zsh-autocomplete behavior to (shift+)tab through menu
 bindkey '^I' clear_and_select
+
 # bindkey '^I' menu-select
 bindkey "$terminfo[kcbt]" menu-select
-bindkey -M menuselect '^I' menu-complete
+bindkey -M menuselect              '^I'         menu-complete
 bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
+bindkey -M menuselect '^M' .accept-line
+
+# Restore default arrow behavior in menus (exits menu and moves cursor at cmdline)
+bindkey -M menuselect  '^[[D' .backward-char  '^[OD' .backward-char
+bindkey -M menuselect  '^[[C'  .forward-char  '^[OC'  .forward-char
 
 # ctrl + space to accept the current suggestion.
-bindkey '^ ' autosuggest-accept
+bindkey '^ ' forward-word
 
 # Change zsh-autocomplete behavior to execute on alt+enter:
 # (ctrl+enter is not recognized by the terminal)
