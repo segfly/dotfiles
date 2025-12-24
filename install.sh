@@ -32,8 +32,28 @@ else
     install_pkgs() {}
 fi
 
+is_container() {
+    if [ -f /.dockerenv ]; then
+        return 0 # True
+    fi
+
+    if grep -Eq "docker|lxc|kubepods" /proc/self/cgroup; then
+        return 0 # True
+    fi
+
+    if grep -Eq "^docker-init" /proc/1/sched; then
+        return 0 # True
+    fi
+
+    if [ -n "$container" ] || [ -n "$DOCKER_CONTAINER" ]; then
+        return 0 # True
+    fi
+
+    return 1 # False
+}
+
 # Install only if running in a container.
-if grep -qE "init|systemd" /proc/1/sched; then
+if ! is_container; then
     echo "Not running in a container, skipping automated installation."
 else
     if ! command -v zsh >/dev/null 2>&1; then
