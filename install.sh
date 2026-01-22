@@ -4,7 +4,8 @@ set -o errexit
 set -o nounset
 
 OMZSH_PLUGINS="https://github.com/agkozak/zsh-z https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/marlonrichert/zsh-autocomplete"
-PACKAGES="tmux vim vim-gui-common lsd grc fastfetch fzf fd-find bat zoxide"
+PACKAGES="tmux vim vim-gui-common lsd grc fastfetch fzf fd-find bat zoxide" # also consider: glances htop
+# vim-gui-common provides advanced vim features like syntax highlighting.
 
 echo "Dotfiles installation started..."
 
