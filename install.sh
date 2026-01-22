@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 
 OMZSH_PLUGINS="https://github.com/agkozak/zsh-z https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/marlonrichert/zsh-autocomplete"
-PACKAGES="tmux vim vim-gui-common"
+PACKAGES="tmux vim vim-gui-common lsd grc fastfetch fzf fd-find bat zoxide"
 
 echo "Dotfiles installation started..."
 
@@ -37,6 +37,10 @@ is_container() {
         return 0 # True
     fi
 
+    if [ -f /run/.containerenv ]; then
+        return 0 # True
+    fi
+
     if grep -Eq "docker|lxc|kubepods" /proc/self/cgroup; then
         return 0 # True
     fi
@@ -45,7 +49,7 @@ is_container() {
         return 0 # True
     fi
 
-    if [ -n "$container" ] || [ -n "$DOCKER_CONTAINER" ]; then
+    if [ -n "${container:-}" ] || [ -n "${DOCKER_CONTAINER:-}" ]; then
         return 0 # True
     fi
 
@@ -56,11 +60,28 @@ is_container() {
 if ! is_container; then
     echo "Not running in a container, skipping automated installation."
 else
+    # Copy dotfiles to home directory.
+    find zsh -type f -exec cp -r {} $HOME/ \; # Copy zsh config files
+    cp -r .config/fish/ $HOME/.config/fish/  # Copy fish config files
+
+    if ! command -v fish >/dev/null 2>&1; then
+        echo "Fish shell is not available. Skipping fish  plugins installation."
+    else
+        /usr/bin/env fish << 'EOF'
+            # Install fisher plugin manager
+            curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source                    
+
+            # Install fish plugins from fish_plugins file
+            fisher update
+
+            # Configure tide prompt
+            tide configure --auto --style=Classic --prompt_colors='True color' --classic_prompt_color=Light --show_time=No --classic_prompt_separators=Angled --powerline_prompt_heads=Sharp --powerline_prompt_tails=Flat --powerline_prompt_style='Two lines, character' --prompt_connection=Disconnected --powerline_right_prompt_frame=No --prompt_spacing=Sparse --icons='Many icons' --transient=Yes
+EOF
+    fi
+
     if ! command -v zsh >/dev/null 2>&1; then
         echo "Zsh is not available. Skipping zsh plugins installation."
     else
-        # Copy dotfiles to home directory.
-        find zsh -type f -exec cp -r {} $HOME/ \;
 
         if ! [ -d "$HOME/.oh-my-zsh" ]; then
             echo "Installing oh-my-zsh"

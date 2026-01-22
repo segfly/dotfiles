@@ -1,0 +1,18 @@
+[user]
+	email = segfly@users.noreply.github.com
+	name = Nicholas Pace
+[diff]
+	tool = auto
+[difftool "auto"]
+	cmd = sh -c 'command -v code >/dev/null && code --wait --diff "$1" "$2" || vimdiff "$1" "$2"' - $LOCAL $REMOTE
+[difftool]
+	prompt = false
+[core]
+	pager = 
+	editor = sh -c 'command -v code >/dev/null 2>&1 && exec code --wait "$@" || exec vim "$@"' sh
+[merge]
+	tool = auto
+[mergetool "auto"]
+	cmd = sh -c 'command -v code >/dev/null && code --wait "$1" || vimdiff "$1" "$2" "$3"' - $MERGED $LOCAL $REMOTE
+[mergetool]
+	prompt = false
