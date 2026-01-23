@@ -8,6 +8,10 @@ if status is-interactive
     # Aliases
     alias ls 'lsd'
     alias ll 'ls -la'
+    alias tree 'tree -aCF --charset utf-8'
+
+    # Customize the pager (replace with cat for no paging)
+    set -x PAGER "less -F -R -X"
 
     # FZF plugin key bindings
     fzf_configure_bindings --directory=\ct
