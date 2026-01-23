@@ -22,7 +22,13 @@ if status is-interactive
         echo "Keyboard Shortcuts:"
         set_color normal
 
-        echo -e "\nSearch Shortcuts:"
+        echo -e "\nText Editing Shortcuts:"
+        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+L"     (set_color normal) "Clear screen"
+        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+U"     (set_color normal) "Delete to beginning of line"
+        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+K"     (set_color normal) "Delete to end of line"
+        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+W"     (set_color normal) "Delete word backwards"
+
+        echo -e "\nFzf Search Shortcuts:"
         printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+T" (set_color normal) "Search directory"
         printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+R" (set_color normal) "Search History"
         printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+L" (set_color normal) "Search git log"
@@ -30,11 +36,15 @@ if status is-interactive
         printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+P" (set_color normal) "Search processes"
         printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+V" (set_color normal) "Search variables"
 
-        echo -e "\nText Editing Shortcuts:"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+L"     (set_color normal) "Clear screen"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+U"     (set_color normal) "Delete to beginning of line"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+K"     (set_color normal) "Delete to end of line"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+W"     (set_color normal) "Delete word backwards"
+        echo -e "\nZoxide Shortcuts (aliased as 'cd'):"
+        printf "%s%-12s%s %s\n" (set_color cyan) "cd foo" (set_color normal) "cd into highest ranked directory matching foo"
+        printf "%s%-12s%s %s\n" (set_color cyan) "cd foo bar" (set_color normal) "cd into highest ranked directory matching foo and bar"
+        printf "%s%-12s%s %s\n" (set_color cyan) "cd foo /" (set_color normal) "cd into a subdirectory starting with foo"
+        printf "%s%-12s%s %s\n" (set_color cyan) "cd ~/foo" (set_color normal) "z also works like a regular cd command"
+        printf "%s%-12s%s %s\n" (set_color cyan) "cd foo/" (set_color normal) "cd into relative path"
+        printf "%s%-12s%s %s\n" (set_color cyan) "cd -" (set_color normal) "cd into previous directory"
+        printf "%s%-12s%s %s\n" (set_color cyan) "cdi foo" (set_color normal) "cd with interactive selection (using fzf)"
+        printf "%s%-12s%s %s\n" (set_color cyan) "cd foo <TAB>" (set_color normal) "show interactive completions (zoxide v0.8.0+)"
     end
 
     # zoxide initialization
