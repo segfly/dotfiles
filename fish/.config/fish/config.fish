@@ -60,4 +60,6 @@ end
 set fzf_fd_opts --hidden --no-ignore --max-depth 1 
 
 # Configure Tide to show username@hostname (context)
-set -g tide_context_always_display true
+set tide_context_always_display true
+set tide_left_prompt_items context pwd git newline character
+set tide_right_prompt_items status cmd_duration jobs direnv bun node python rustc java php pulumi ruby go gcloud kubectl distrobox toolbox terraform aws nix_shell crystal elixir zig
