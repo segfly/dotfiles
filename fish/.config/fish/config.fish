@@ -58,3 +58,6 @@ end
 
 # Ensure fzf plugin shows hidden files and ignores .gitignore
 set fzf_fd_opts --hidden --no-ignore --max-depth 1 
+
+# Configure Tide to show username@hostname (context)
+set -g tide_context_always_display true
