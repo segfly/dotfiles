@@ -9,6 +9,7 @@ if status is-interactive
     alias ls 'lsd'
     alias ll 'ls -la'
     alias tree 'tree -aCF --charset utf-8'
+    alias uv_outdated 'uv tree --outdated | grep -e "^├.*latest.*"'
 
     # Customize the pager (replace with cat for no paging)
     set -x PAGER "less -F -R -X"
@@ -45,6 +46,9 @@ if status is-interactive
         printf "%s%-12s%s %s\n" (set_color cyan) "cd -" (set_color normal) "cd into previous directory"
         printf "%s%-12s%s %s\n" (set_color cyan) "cdi foo" (set_color normal) "cd with interactive selection (using fzf)"
         printf "%s%-12s%s %s\n" (set_color cyan) "cd foo <TAB>" (set_color normal) "show interactive completions (zoxide v0.8.0+)"
+
+        echo -e "\nBuild aliases:"
+        printf "%s%-12s%s %s\n" (set_color cyan) "uv_outdated" (set_color normal) "Check for outdated top-level python packages"
     end
 
     # zoxide initialization
