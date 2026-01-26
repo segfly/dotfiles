@@ -54,6 +54,11 @@ if status is-interactive
             printf "%s%-12s%s %s\n" (set_color cyan) "cd foo <TAB>" (set_color normal) "show interactive completions (zoxide v0.8.0+)"
         end
 
+        if command -v thefuck > /dev/null
+            echo -e "\nfix_cmd Shortcuts:"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Shift+Alt+F" (set_color normal) "Correct previous console command"
+        end        
+
         if command -v uv > /dev/null
             echo -e "\nBuild aliases:"
             printf "%s%-12s%s %s\n" (set_color cyan) "uv_outdated" (set_color normal) "Check for outdated top-level python packages"
