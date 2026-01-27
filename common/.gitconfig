@@ -13,6 +13,6 @@
 [merge]
 	tool = auto
 [mergetool "auto"]
-	cmd = sh -c 'command -v code >/dev/null && code --wait "$1" || vimdiff "$1" "$2" "$3"' - $MERGED $LOCAL $REMOTE
+	cmd = sh -c 'command -v code >/dev/null && code --wait "$1" "$2" "$3" "$4" || vimdiff -c "$1" "$2" "$3" "$4"' - $LOCAL $REMOTE $BASE $MERGED
 [mergetool]
 	prompt = false

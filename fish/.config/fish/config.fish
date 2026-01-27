@@ -8,61 +8,66 @@ if status is-interactive
     end
 
     # Aliases
-    alias ls 'lsd'
-    alias ll 'ls -la'
-    alias tree 'tree -aCF --charset utf-8'
+    if command -v uv > /dev/null
+        alias ls 'eza --icons=auto --classify=always'
+        alias ll 'ls -lag --smart-group --time-style=long-iso'
+        alias llt 'll --total-size'
+        alias tree 'll --tree --total-size'
+    end
 
     if command -v uv > /dev/null
         alias uv_outdated 'uv tree --outdated | grep -e "^├.*latest.*"'
     end        
 
     # Customize the pager (replace with cat for no paging)
-    set -x PAGER "less -F -R -X"
+    set -x PAGER "less -FRX --mouse --wheel-lines 3"
 
     # FZF plugin key bindings
     fzf_configure_bindings --directory=\ct
 
     # Key bindings help
     function keyhelp
-        set_color green --bold
-        echo "Keyboard Shortcuts:"
-        set_color normal
+        begin
+            set_color green --bold
+            echo "Keyboard Shortcuts:"
+            set_color normal
 
-        echo -e "\nText Editing Shortcuts:"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+L"     (set_color normal) "Clear screen"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+U"     (set_color normal) "Delete to beginning of line"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+K"     (set_color normal) "Delete to end of line"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+W"     (set_color normal) "Delete word backwards"
+            echo -e "\nText Editing Shortcuts:"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+L"     (set_color normal) "Clear screen"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+U"     (set_color normal) "Delete to beginning of line"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+K"     (set_color normal) "Delete to end of line"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+W"     (set_color normal) "Delete word backwards"
 
-        echo -e "\nFzf Search Shortcuts:"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+T" (set_color normal) "Search directory"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+R" (set_color normal) "Search History"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+L" (set_color normal) "Search git log"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+S" (set_color normal) "Search git status"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+P" (set_color normal) "Search processes"
-        printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+V" (set_color normal) "Search variables"
+            echo -e "\nFzf Search Shortcuts:"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+T" (set_color normal) "Search directory"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+R" (set_color normal) "Search History"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+L" (set_color normal) "Search git log"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+S" (set_color normal) "Search git status"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+P" (set_color normal) "Search processes"
+            printf "%s%-12s%s %s\n" (set_color cyan) "Ctrl+Alt+V" (set_color normal) "Search variables"
 
-        if command -v zoxide > /dev/null
-            echo -e "\nZoxide Shortcuts (aliased as 'cd'):"
-            printf "%s%-12s%s %s\n" (set_color cyan) "cd foo" (set_color normal) "cd into highest ranked directory matching foo"
-            printf "%s%-12s%s %s\n" (set_color cyan) "cd foo bar" (set_color normal) "cd into highest ranked directory matching foo and bar"
-            printf "%s%-12s%s %s\n" (set_color cyan) "cd foo /" (set_color normal) "cd into a subdirectory starting with foo"
-            printf "%s%-12s%s %s\n" (set_color cyan) "cd ~/foo" (set_color normal) "z also works like a regular cd command"
-            printf "%s%-12s%s %s\n" (set_color cyan) "cd foo/" (set_color normal) "cd into relative path"
-            printf "%s%-12s%s %s\n" (set_color cyan) "cd -" (set_color normal) "cd into previous directory"
-            printf "%s%-12s%s %s\n" (set_color cyan) "cdi foo" (set_color normal) "cd with interactive selection (using fzf)"
-            printf "%s%-12s%s %s\n" (set_color cyan) "cd foo <TAB>" (set_color normal) "show interactive completions (zoxide v0.8.0+)"
-        end
+            if command -v zoxide > /dev/null
+                echo -e "\nZoxide Shortcuts (aliased as 'cd'):"
+                printf "%s%-12s%s %s\n" (set_color cyan) "cd foo" (set_color normal) "cd into highest ranked directory matching foo"
+                printf "%s%-12s%s %s\n" (set_color cyan) "cd foo bar" (set_color normal) "cd into highest ranked directory matching foo and bar"
+                printf "%s%-12s%s %s\n" (set_color cyan) "cd foo /" (set_color normal) "cd into a subdirectory starting with foo"
+                printf "%s%-12s%s %s\n" (set_color cyan) "cd ~/foo" (set_color normal) "z also works like a regular cd command"
+                printf "%s%-12s%s %s\n" (set_color cyan) "cd foo/" (set_color normal) "cd into relative path"
+                printf "%s%-12s%s %s\n" (set_color cyan) "cd -" (set_color normal) "cd into previous directory"
+                printf "%s%-12s%s %s\n" (set_color cyan) "cdi foo" (set_color normal) "cd with interactive selection (using fzf)"
+                printf "%s%-12s%s %s\n" (set_color cyan) "cd foo <TAB>" (set_color normal) "show interactive completions (zoxide v0.8.0+)"
+            end
 
-        if command -v thefuck > /dev/null
-            echo -e "\nfix_cmd Shortcuts:"
-            printf "%s%-12s%s %s\n" (set_color cyan) "Shift+Alt+F" (set_color normal) "Correct previous console command"
-        end        
+            if command -v thefuck > /dev/null
+                echo -e "\nfix_cmd Shortcuts:"
+                printf "%s%-12s%s %s\n" (set_color cyan) "Shift+Alt+F" (set_color normal) "Correct previous console command"
+            end        
 
-        if command -v uv > /dev/null
-            echo -e "\nBuild aliases:"
-            printf "%s%-12s%s %s\n" (set_color cyan) "uv_outdated" (set_color normal) "Check for outdated top-level python packages"
-        end
+            if command -v uv > /dev/null
+                echo -e "\nBuild aliases:"
+                printf "%s%-12s%s %s\n" (set_color cyan) "uv_outdated" (set_color normal) "Check for outdated top-level python packages"
+            end
+        end | eval $PAGER
     end
 
     # zoxide initialization
@@ -98,7 +103,7 @@ if command -v batcat > /dev/null
 end
 
 # Ensure fzf plugin shows hidden files and ignores .gitignore
-set fzf_fd_opts --hidden --no-ignore --max-depth 1 
+set fzf_fd_opts --hidden --no-ignore --max-depth 5 
 
 # Configure Tide to show username@hostname (context)
 set tide_context_always_display true
