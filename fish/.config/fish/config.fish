@@ -16,8 +16,27 @@ if status is-interactive
     end
 
     if command -v uv > /dev/null
-        alias uv_outdated 'uv tree --outdated | grep -e "^├.*latest.*"'
+        alias uv_outdated 'uv tree --outdated -d 1 | grep -e "^├.*latest.*"'
     end        
+
+    # Function to switch git origin from HTTPS to SSH
+    function git_switch_origin_to_ssh
+        if not command -v git >/dev/null
+            return
+        end
+
+        if not git rev-parse --is-inside-work-tree >/dev/null 2>&1
+            return
+        end
+
+        set origin_url (git remote get-url origin 2>/dev/null)
+        # Match any HTTPS URL and convert to SSH format (git@host:repo.git)
+        if string match -qr '^https?://[^/]+/' -- $origin_url
+            set host (string replace -r '^https?://([^/]+)/.*' '$1' -- $origin_url)
+            set repo (string replace -r '^https?://[^/]+/(.*)' '$1' -- $origin_url)
+            git remote set-url origin git@$host:$repo
+        end
+    end
 
     # Customize the pager (replace with cat for no paging)
     set -x PAGER "less -FRX --mouse --wheel-lines 3"
