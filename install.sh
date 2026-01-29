@@ -3,6 +3,16 @@
 set -o errexit
 set -o nounset
 
+# Parse command line arguments
+FORCE_OVERWRITE=false
+for arg in "$@"; do
+    case "$arg" in
+        --force)
+            FORCE_OVERWRITE=true
+            ;;
+    esac
+done
+
 OMZSH_PLUGINS="https://github.com/agkozak/zsh-z https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/marlonrichert/zsh-autocomplete"
 PACKAGES="tmux vim vim-gui-common eza grc fastfetch fzf thefuck fd-find bat zoxide"
 # also consider: glances htop
@@ -134,9 +144,14 @@ symlink() {
             # It's a symlink - remove it to recreate
             rm "$target_file"
         elif [ -e "$target_file" ]; then
-            # It's a real file/directory - skip it
-            echo "Skipping existing file: $target_file"
-            continue
+            # It's a real file/directory
+            if [ "$FORCE_OVERWRITE" = "true" ]; then
+                echo "Overwriting existing file: $target_file"
+                rm -rf "$target_file"
+            else
+                echo "Skipping existing file: $target_file"
+                continue
+            fi
         fi
         
         # Calculate the directory where the symlink will be created
