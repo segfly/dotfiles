@@ -43,6 +43,9 @@ if status is-interactive
 
     # FZF plugin key bindings
     fzf_configure_bindings --directory=\ct
+    
+    # Sponge plugin delay
+    set sponge_delay 8
 
     # Key bindings help
     function keyhelp
