@@ -58,15 +58,63 @@ is_container() {
     return 1 # False
 }
 
+# Calculate relative path from one directory to a file
+# Returns absolute path if backtracking depth > 2 or no common ancestor
+# Usage: relpath <from_dir> <to_file>
+relpath() {
+    from_dir="$1"
+    to_file="$2"
+    
+    result=""
+    common="$from_dir"
+    depth=0
+    
+    # Walk up from from_dir until we find a common prefix with to_file
+    while [ "${to_file#$common/}" = "$to_file" ] && [ "$to_file" != "$common" ]; do
+        # Move up one level
+        parent="${common%/*}"
+        [ "$parent" = "$common" ] && parent=""
+        [ -z "$parent" ] && parent="/"
+        
+        common="$parent"
+        result="../$result"
+        depth=$((depth + 1))
+        
+        # If depth > 2 or we've reached root, use absolute path
+        if [ "$depth" -gt 2 ] || [ "$common" = "/" ]; then
+            printf '%s' "$to_file"
+            return
+        fi
+    done
+    
+    # common is now the longest common prefix directory
+    if [ "$to_file" = "$common" ]; then
+        printf '%s' "${result}."
+    else
+        printf '%s%s' "$result" "${to_file#$common/}"
+    fi
+}
+
 symlink() {
     src_dir="$1"
     target_dir="$2"
-    src_abs=$(cd -P "$src_dir" && pwd)
-    target_abs=$(cd -P "$target_dir" && pwd)
-    src_name="${src_abs##*/}"
+    
+    # Get the directory where this script is located
+    script_dir="$(cd "$(dirname "$0")" && pwd -P)"
+    
+    # Resolve src_dir: if relative, resolve from script directory
+    if [ "${src_dir#/}" = "$src_dir" ]; then
+        # src_dir is relative, resolve from script directory
+        src_abs=$(cd -P "$script_dir/$src_dir" && pwd -P)
+    else
+        src_abs=$(cd -P "$src_dir" && pwd -P)
+    fi
+    
+    # Resolve target_dir to absolute path
+    target_abs=$(cd -P "$target_dir" && pwd -P)
 
-    find "$src_dir" -type f | while read -r src_file; do
-        rel_path="${src_file#$src_dir/}"
+    find "$src_abs" -type f | while read -r src_file; do
+        rel_path="${src_file#$src_abs/}"
         dir_part="${rel_path%/*}"
         filename="${rel_path##*/}"
         
@@ -78,28 +126,26 @@ symlink() {
         [ "$new_filename" != "$filename" ] && new_filename=".$new_filename"
         
         # Construct target path and create directories
-        target_file="$target_dir${dir_part:+/$dir_part}/$new_filename"
-        [ -n "$dir_part" ] && mkdir -p "$target_dir/$dir_part"
+        target_file="$target_abs${dir_part:+/$dir_part}/$new_filename"
+        [ -n "$dir_part" ] && mkdir -p "$target_abs/$dir_part"
         
-        # Backup existing file
-        [ -e "$target_file" ] && mv "$target_file" "$target_file.orig"
-        
-        # Build relative path from target to source
-        if [ -n "$dir_part" ]; then
-            depth=$(($(printf '%s' "$dir_part" | tr -cd '/' | wc -c) + 1))
-            up_path=$(printf '../%.0s' $(seq 1 $depth))
-        else
-            up_path=""
+        # Handle existing target
+        if [ -L "$target_file" ]; then
+            # It's a symlink - remove it to recreate
+            rm "$target_file"
+        elif [ -e "$target_file" ]; then
+            # It's a real file/directory - skip it
+            echo "Skipping existing file: $target_file"
+            continue
         fi
         
-        # Determine relative source path
-        if [ "${src_abs#$target_abs/}" != "$src_abs" ]; then
-            rel_to_src="${src_abs#$target_abs/}"
-        else
-            rel_to_src="../$src_name"
-        fi
+        # Calculate the directory where the symlink will be created
+        link_dir="$target_abs${dir_part:+/$dir_part}"
         
-        ln -s "$up_path$rel_to_src/$rel_path" "$target_file"
+        # Calculate proper relative path from link location to source file
+        rel_link=$(relpath "$link_dir" "$src_file")
+        
+        ln -s "$rel_link" "$target_file"
     done
 }
 
