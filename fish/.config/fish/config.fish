@@ -145,7 +145,7 @@ if command -v eza > /dev/null
         for path in $argv
             set trimmed $path
             if string match -qvr '^[\w/]' -- $path
-                set trimmed (string sub -s 5 $path | string replace -r '@|\*$' '')
+                set trimmed (string sub -s 5 $path | string replace -r '[@|\*]$' '')
             end
             echo $trimmed
         end
