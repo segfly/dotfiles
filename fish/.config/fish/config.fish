@@ -118,6 +118,11 @@ if status is-interactive
         # Bind Ctrl+Alt+F to execute the function
         bind \e\cF 'commandline -r "fix_cmd"; commandline -f execute'
     end
+
+    # Configure Tide to show username@hostname (context)
+    set tide_context_always_display true
+    set tide_left_prompt_items context pwd git newline character
+    set tide_right_prompt_items status cmd_duration jobs direnv bun node python rustc java php pulumi ruby go gcloud kubectl distrobox toolbox terraform aws nix_shell crystal elixir zig
 end
 
 # Wrapper for bat to use batcat for the fzf plugin (must be outside is-interactive block)
@@ -130,35 +135,24 @@ end
 # Ensure fzf plugin shows hidden files and ignores .gitignore
 set fzf_fd_opts --hidden --no-ignore --max-depth 5
 
-# # Experiment to include icons in fzf files search using eza
-# if command -v eza > /dev/null
-#     set fzf_fd_opts --hidden --no-ignore --max-depth 5 --exec-batch eza --icons=always --color=always --classify=always --dereference --list-dirs --oneline
-#     set fzf_preview_dir_cmd eza --all --color=always --icons=always --classify=always --oneline
+# Include icons in fzf files search using eza
+if command -v eza > /dev/null
+    set fzf_fd_opts --hidden --no-ignore --max-depth 5 --exec-batch eza --icons=always --color=always --classify=always --dereference --list-dirs --oneline {} \;
+    set fzf_preview_dir_cmd eza --all --color=always --icons=always --classify=always --oneline
 
-#     # Replace the default _fzf_preview_file function to strip icons before previewing
-#     functions -c _fzf_preview_file _fzf_preview_file_original
-#     function _fzf_preview_file
-#         # Skip if called from _fzf_preview_file_original to avoid recursion
-#         # Check if we're being called from the original function to avoid recursion
-#         set -l call_stack (status stack-trace | string match -r 'called on line \d+' | head -n 2)
-#         if test (count $call_stack) -ge 2
-#             _fzf_preview_file_original $argv
-#             return
-#         end
+    # Helper function to remove decorators from paths
+    function _clean_path
+        for path in $argv
+            set trimmed $path
+            if string match -qvr '^[\w/]' -- $path
+                set trimmed (string sub -s 5 $path | string replace -r '@|\*$' '')
+            end
+            echo $trimmed
+        end
+    end
 
-#         # Remove leading icon characters (first two characters)
-#         set trimmed (string sub -s 3 $argv[1])
-
-#         # Remove trailing '@' if present
-#         set trimmed (string replace -r '@$' '' -- $trimmed)
-#         _fzf_preview_file_original $trimmed
-#     end
-
-#     # TODO: Hook _fzf_search_directory to remove icons from the selected file before returning it
-
-# end
-
-# Configure Tide to show username@hostname (context)
-set tide_context_always_display true
-set tide_left_prompt_items context pwd git newline character
-set tide_right_prompt_items status cmd_duration jobs direnv bun node python rustc java php pulumi ruby go gcloud kubectl distrobox toolbox terraform aws nix_shell crystal elixir zig
+    # Patch the _fzf_search_directory function to remove decorators
+    functions _fzf_search_directory | string replace -ra '(\$unescaped_exp_token)\((.*)\)' '$1(_clean_path ($2))' | source
+    functions _fzf_search_directory | string replace -ra '\$file_paths_selected' '(_clean_path \$file_paths_selected)' | source
+    functions _fzf_search_directory | string replace -ra '(\--preview="_fzf_preview_file (\$expanded_token))?\{\}' '$1(_clean_path {})' | source
+end
