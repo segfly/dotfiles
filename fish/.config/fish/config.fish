@@ -7,6 +7,9 @@ if status is-interactive
         echo -e "Run "(set_color --bold cyan)"keyhelp"(set_color normal)" for shortcut cheatsheet.\n"
     end
 
+    # Custom colors
+    set man_standout -b yellow # for fish-colored-man plugin
+
     # Aliases
     if command -v uv > /dev/null
         alias ls 'eza --icons=auto --classify=always'
@@ -125,7 +128,35 @@ if command -v batcat > /dev/null
 end
 
 # Ensure fzf plugin shows hidden files and ignores .gitignore
-set fzf_fd_opts --hidden --no-ignore --max-depth 5 
+set fzf_fd_opts --hidden --no-ignore --max-depth 5
+
+# # Experiment to include icons in fzf files search using eza
+# if command -v eza > /dev/null
+#     set fzf_fd_opts --hidden --no-ignore --max-depth 5 --exec-batch eza --icons=always --color=always --classify=always --dereference --list-dirs --oneline
+#     set fzf_preview_dir_cmd eza --all --color=always --icons=always --classify=always --oneline
+
+#     # Replace the default _fzf_preview_file function to strip icons before previewing
+#     functions -c _fzf_preview_file _fzf_preview_file_original
+#     function _fzf_preview_file
+#         # Skip if called from _fzf_preview_file_original to avoid recursion
+#         # Check if we're being called from the original function to avoid recursion
+#         set -l call_stack (status stack-trace | string match -r 'called on line \d+' | head -n 2)
+#         if test (count $call_stack) -ge 2
+#             _fzf_preview_file_original $argv
+#             return
+#         end
+
+#         # Remove leading icon characters (first two characters)
+#         set trimmed (string sub -s 3 $argv[1])
+
+#         # Remove trailing '@' if present
+#         set trimmed (string replace -r '@$' '' -- $trimmed)
+#         _fzf_preview_file_original $trimmed
+#     end
+
+#     # TODO: Hook _fzf_search_directory to remove icons from the selected file before returning it
+
+# end
 
 # Configure Tide to show username@hostname (context)
 set tide_context_always_display true
