@@ -173,7 +173,7 @@ else
     echo "Linking dotfiles to home directory..."    
     symlink ./common "$HOME"
     symlink ./fish "$HOME"
-    symlink ./zsh "$HOME"
+    # symlink ./zsh "$HOME"  # Skipping until zsh install security can be improved
     symlink ./tmux "$HOME"
     symlink ./vim "$HOME"
 
@@ -188,8 +188,8 @@ else
         echo "Configuring fish shell and plugins..."
 
         /usr/bin/env fish << 'EOF'
-            # Install fisher plugin manager
-            curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source                    
+            # Install fisher plugin manager (keep fisher sha synced in fish_plugins)
+            curl --proto '=https' --tlsv1.2 -LsSf https://raw.githubusercontent.com/jorgebucaran/fisher/4fd75f156adf621e15993435f4c0fc1cacb948ad/functions/fisher.fish | source                    
 
             # Install fish plugins from fish_plugins file
             fisher update
@@ -200,37 +200,38 @@ EOF
     fi # End of fish
 
     # Configure zsh shell and plugins
-    if ! command -v zsh >/dev/null 2>&1; then
-        echo "Zsh is not available. Skipping zsh plugins installation."
-    else
-        echo "Configuring zsh shell and plugins..."
+    # Disabling until install security can be improved
+    # if ! command -v zsh >/dev/null 2>&1; then
+    #     echo "Zsh is not available. Skipping zsh plugins installation."
+    # else
+    #     echo "Configuring zsh shell and plugins..."
 
-        if ! [ -d "$HOME/.oh-my-zsh" ]; then
-            echo "Installing oh-my-zsh"
-            sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"        
-        fi
+    #     if ! [ -d "$HOME/.oh-my-zsh" ]; then
+    #         echo "Installing oh-my-zsh"
+    #         sh -c "$(curl --proto '=https' --tlsv1.2 -LsSf https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"        
+    #     fi
 
-        OMZSH_PLUGINS_LOCATION="$HOME/.oh-my-zsh/custom/plugins"
-        mkdir -p "$OMZSH_PLUGINS_LOCATION"
+    #     OMZSH_PLUGINS_LOCATION="$HOME/.oh-my-zsh/custom/plugins"
+    #     mkdir -p "$OMZSH_PLUGINS_LOCATION"
 
-        for plugin in $OMZSH_PLUGINS; do
-            plugin_name=$(basename $plugin)
-            if ! [ -d "$OMZSH_PLUGINS_LOCATION/$plugin_name" ]; then
-                echo "Installing plugin: $plugin_name"        
-                git clone --depth 1 $plugin "$OMZSH_PLUGINS_LOCATION/$plugin_name"
-            else
-                echo "Skipping installation of existing plugin: $plugin_name"        
-            fi
-        done
+    #     for plugin in $OMZSH_PLUGINS; do
+    #         plugin_name=$(basename $plugin)
+    #         if ! [ -d "$OMZSH_PLUGINS_LOCATION/$plugin_name" ]; then
+    #             echo "Installing plugin: $plugin_name"        
+    #             git clone --depth 1 $plugin "$OMZSH_PLUGINS_LOCATION/$plugin_name"
+    #         else
+    #             echo "Skipping installation of existing plugin: $plugin_name"        
+    #         fi
+    #     done
 
-        # Install powerlevel10k theme separately.
-        if ! [ -d "$HOME/powerlevel10k" ]; then
-            echo "Installing theme: powerlevel10k"        
-            git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$HOME/powerlevel10k"
-        else
-            echo "Skipping installation of existing theme: powerlevel10k"
-        fi
-    fi # End of zsh
+    #     # Install powerlevel10k theme separately.
+    #     if ! [ -d "$HOME/powerlevel10k" ]; then
+    #         echo "Installing theme: powerlevel10k"        
+    #         git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$HOME/powerlevel10k"
+    #     else
+    #         echo "Skipping installation of existing theme: powerlevel10k"
+    #     fi
+    # fi # End of zsh
 
     # Configure tmux and plugins
     if ! command -v tmux >/dev/null 2>&1; then
@@ -240,7 +241,10 @@ EOF
 
         if ! [ -d "$HOME/.tmux/plugins/tpm" ]; then
             echo "Installing tmux plugin manager"
-            git clone --depth=1 https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+            git clone -c advice.detachedHead=false --depth=1 https://github.com/tmux-plugins/tpm "~/.tmux/plugins/tpm" --revision 7bdb7ca33c9cc6440a600202b50142f401b6fe21
+
+            # Patch TPM to use shallow clones for plugins at a specific commit (repo#commitsha)
+            sed -i 's/git clone -b "\$branch" --single-branch --recursive "\$plugin"/git clone -c advice.detachedHead=false --depth=1 --recursive "\$plugin" --revision "\$branch"/' ~/.tmux/plugins/tpm/scripts/install_plugins.sh
         else
             echo "Skipping installation of existing tmux plugin manager"
         fi
