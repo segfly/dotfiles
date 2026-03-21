@@ -119,6 +119,12 @@ if status is-interactive
         bind \e\cF 'commandline -r "fix_cmd"; commandline -f execute'
     end
 
+    # Add claude to PATH
+    # set -l claude_dir (ls -d /home/vscode/.vscode-server/extensions/anthropic.claude-codse-*/resources/native-binary 2>/dev/null | sort -V | tail -1)
+    # if test -n "$claude_dir"
+    #     fish_add_path $claude_dir
+    # end
+
     # Configure Tide to show username@hostname (context)
     set tide_context_always_display true
     set tide_left_prompt_items context pwd git newline character
