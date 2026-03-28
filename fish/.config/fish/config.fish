@@ -4,7 +4,12 @@ if status is-interactive
         if command -v fastfetch > /dev/null
             fastfetch
         end
+
         echo -e "Run "(set_color --bold cyan)"keyhelp"(set_color normal)" for shortcut cheatsheet.\n"
+
+        if command -v python >/dev/null
+            printf "Using %s%s%s: %s%s%s\n" (set_color yellow) (python --version) (set_color normal) (set_color cyan) (command -s python) (set_color normal)
+        end
     end
 
     # Custom colors
@@ -89,7 +94,8 @@ if status is-interactive
             end        
 
             if command -v uv > /dev/null
-                echo -e "\nBuild aliases:"
+                echo -e "\nPython helpers:"
+                printf "%s%-12s%s %s\n" (set_color cyan) "activate" (set_color normal) "Activate working directory virtual environment"
                 printf "%s%-12s%s %s\n" (set_color cyan) "uv_outdated" (set_color normal) "Check for outdated top-level python packages"
             end
         end | eval $PAGER
@@ -129,6 +135,18 @@ if status is-interactive
     set tide_context_always_display true
     set tide_left_prompt_items context pwd git newline character
     set tide_right_prompt_items status cmd_duration jobs direnv bun node python rustc java php pulumi ruby go gcloud kubectl distrobox toolbox terraform aws nix_shell crystal elixir zig
+
+    # Activate Python virtual environment if present
+    function activate
+        if test -f .venv/bin/activate.fish
+            source .venv/bin/activate.fish
+        else
+            printf "No virtual environment found in working directory.\n"
+        end
+    end
+
+    # Auto-activate local Python virtual environment
+    activate
 end
 
 # Wrapper for bat to use batcat for the fzf plugin (must be outside is-interactive block)
